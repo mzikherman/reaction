@@ -54,6 +54,7 @@ export const routes: RouteConfig[] = [
             ...filterStateFromUrl,
             ...params,
           }
+
           return filterParams
         },
         query: graphql`

@@ -34,7 +34,7 @@ export const initialState = {
   offerable: null,
   at_auction: null,
   inquireable_only: null,
-  price_range: "*-*",
+  price_range: null,
   selectedFilters: [],
   showZeroState: false,
 }
@@ -184,7 +184,12 @@ export class FilterState extends Container<State> {
     let maxStr: string
     let min: number
     let max: number
-    ;[minStr, maxStr] = this.state.price_range.split("-")
+    if (this.state.price_range) {
+      ;[minStr, maxStr] = this.state.price_range.split("-")
+    } else {
+      minStr = "*"
+      maxStr = "*"
+    }
     min = minStr === "*" ? FilterState.MIN_PRICE : Number(minStr)
     max = maxStr === "*" ? FilterState.MAX_PRICE : Number(maxStr)
     return [min, max]

@@ -408,12 +408,23 @@ export const ArtworkFilterFragmentContainer = createFragmentContainer(
           artworks
           has_make_offer_artworks
         }
-        filtered_artworks(aggregations: $aggregations, size: 0) {
+        filtered_artworks(
+          sort: $sort
+          page: $page
+          aggregations: $aggregations
+        ) {
           aggregations {
             slice
             counts {
               name
               id
+            }
+          }
+          artworks_connection(first: 24, after: "") {
+            edges {
+              node {
+                id
+              }
             }
           }
         }
@@ -431,6 +442,7 @@ export const ArtworkFilterFragmentContainer = createFragmentContainer(
             inquireable_only: $inquireable_only
             price_range: $price_range
             page: $page
+            aggregations: $aggregations
           )
 
         ...FollowArtistButton_artist
