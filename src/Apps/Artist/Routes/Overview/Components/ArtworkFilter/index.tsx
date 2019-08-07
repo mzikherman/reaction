@@ -397,6 +397,7 @@ export const ArtworkFilterFragmentContainer = createFragmentContainer(
           sort: { type: "String", defaultValue: "-decayed_merch" }
           price_range: { type: "String", defaultValue: "*-*" }
           page: { type: "Int" }
+          hasFilter: { type: "Boolean", defaultValue: false }
         ) {
         id
         name
@@ -408,6 +409,8 @@ export const ArtworkFilterFragmentContainer = createFragmentContainer(
           artworks
           has_make_offer_artworks
         }
+        # The call to fetch aggregations shouldn't take any
+        # filter params (since we always want the full list for an artist).
         filtered_artworks(
           sort: $sort
           page: $page
@@ -420,7 +423,13 @@ export const ArtworkFilterFragmentContainer = createFragmentContainer(
               id
             }
           }
-          artworks_connection(first: 24, after: "") {
+          # Include the below fragment so that this will match
+          # the initial load (w/ no filter applied), and thus MP
+          # will consolidate aggregations _and_ the grid into one call.
+          # Leave out this fragment if navigating to the artist page
+          # with a filter applied, as those can't be consolidated and
+          # this is extra data.
+          artworks_connection(first: 24, after: "") @skip(if: $hasFilter) {
             edges {
               node {
                 id

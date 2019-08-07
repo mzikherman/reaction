@@ -25,7 +25,7 @@ export type ArtworkFilter_artist = {
                 readonly id: string;
             }) | null> | null;
         }) | null> | null;
-        readonly artworks_connection: ({
+        readonly artworks_connection?: ({
             readonly edges: ReadonlyArray<({
                 readonly node: ({
                     readonly id: string;
@@ -144,6 +144,12 @@ return {
       "name": "page",
       "type": "Int",
       "defaultValue": null
+    },
+    {
+      "kind": "LocalArgument",
+      "name": "hasFilter",
+      "type": "Boolean",
+      "defaultValue": false
     }
   ],
   "selections": [
@@ -262,55 +268,62 @@ return {
             }
           ]
         },
+        v2,
         {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "artworks_connection",
-          "storageKey": "artworks_connection(after:\"\",first:24)",
-          "args": [
-            {
-              "kind": "Literal",
-              "name": "after",
-              "value": "",
-              "type": "String"
-            },
-            {
-              "kind": "Literal",
-              "name": "first",
-              "value": 24,
-              "type": "Int"
-            }
-          ],
-          "concreteType": "ArtworkConnection",
-          "plural": false,
+          "kind": "Condition",
+          "passingValue": false,
+          "condition": "hasFilter",
           "selections": [
             {
               "kind": "LinkedField",
               "alias": null,
-              "name": "edges",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "ArtworkEdge",
-              "plural": true,
+              "name": "artworks_connection",
+              "storageKey": "artworks_connection(after:\"\",first:24)",
+              "args": [
+                {
+                  "kind": "Literal",
+                  "name": "after",
+                  "value": "",
+                  "type": "String"
+                },
+                {
+                  "kind": "Literal",
+                  "name": "first",
+                  "value": 24,
+                  "type": "Int"
+                }
+              ],
+              "concreteType": "ArtworkConnection",
+              "plural": false,
               "selections": [
                 {
                   "kind": "LinkedField",
                   "alias": null,
-                  "name": "node",
+                  "name": "edges",
                   "storageKey": null,
                   "args": null,
-                  "concreteType": "Artwork",
-                  "plural": false,
+                  "concreteType": "ArtworkEdge",
+                  "plural": true,
                   "selections": [
-                    v0,
-                    v2
+                    {
+                      "kind": "LinkedField",
+                      "alias": null,
+                      "name": "node",
+                      "storageKey": null,
+                      "args": null,
+                      "concreteType": "Artwork",
+                      "plural": false,
+                      "selections": [
+                        v0,
+                        v2
+                      ]
+                    }
                   ]
                 }
               ]
             }
           ]
-        },
-        v2
+        }
       ]
     },
     {
@@ -400,5 +413,5 @@ return {
   ]
 };
 })();
-(node as any).hash = 'cfaba8d5a4374ec565aa29792cd997f6';
+(node as any).hash = '01e2889d2847d6ea5ca8be7f024f7ae2';
 export default node;

@@ -54,7 +54,7 @@ export const urlFragmentFromState = (state: State) => {
 }
 
 // This is used to remove default state params that clutter up URLs.
-const isDefaultFilter = (filter, value): boolean => {
+export const isDefaultFilter = (filter, value): boolean => {
   if (filter === "major_periods" || filter === "attribution_class") {
     return value.length === 0
   }

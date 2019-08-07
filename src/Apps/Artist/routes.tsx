@@ -1,5 +1,9 @@
 import { routes_OverviewQueryRendererQueryResponse } from "__generated__/routes_OverviewQueryRendererQuery.graphql"
-import { FilterState, initialState } from "Apps/Artist/Routes/Overview/state"
+import {
+  FilterState,
+  initialState,
+  isDefaultFilter,
+} from "Apps/Artist/Routes/Overview/state"
 import { Redirect, RouteConfig } from "found"
 import React from "react"
 import { graphql } from "react-relay"
@@ -55,6 +59,13 @@ export const routes: RouteConfig[] = [
             ...params,
           }
 
+          Object.entries(filterStateFromUrl).map(([k, v]) => {
+            if (!isDefaultFilter(k, v)) {
+              filterParams.hasFilter = true
+              return
+            }
+          })
+
           return filterParams
         },
         query: graphql`
@@ -71,6 +82,7 @@ export const routes: RouteConfig[] = [
             $inquireable_only: Boolean
             $price_range: String
             $page: Int
+            $hasFilter: Boolean!
           ) {
             artist(id: $artistID) {
               ...Overview_artist
@@ -86,6 +98,7 @@ export const routes: RouteConfig[] = [
                   offerable: $offerable
                   price_range: $price_range
                   page: $page
+                  hasFilter: $hasFilter
                 )
             }
           }
