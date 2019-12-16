@@ -400,7 +400,6 @@ export class SearchBar extends Component<Props, State> {
         itemScope
         itemType="http://schema.org/SearchAction"
         onSubmit={event => {
-          console.log(this.enableExperimentalAppShell)
           if (this.enableExperimentalAppShell) {
             if (router) {
               event.preventDefault()
