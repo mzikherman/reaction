@@ -10,13 +10,13 @@ import {
   Spinner,
   StackableBorderBox,
 } from "@artsy/palette"
-import { PurchaseHistory_orders } from "__generated__/PurchaseHistory_orders.graphql"
+import { PurchaseHistory_me } from "__generated__/PurchaseHistory_me.graphql"
 import React, { useState } from "react"
 import { createRefetchContainer, graphql, RelayRefetchProp } from "react-relay"
 import { get } from "Utils/get"
 
 interface OrderRowProps {
-  order: PurchaseHistory_orders["edges"][number]["node"]
+  order: PurchaseHistory_me["orders"]["edges"][number]["node"]
 }
 const OrderRow = (props: OrderRowProps) => {
   const { order } = props
@@ -80,13 +80,13 @@ const OrderRow = (props: OrderRowProps) => {
   )
 }
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 3
 
 const loadNext = (pageInfo, relay, setLoading) => {
   const { hasNextPage, endCursor } = pageInfo
 
   if (hasNextPage) {
-    this.loadAfter(endCursor, relay, setLoading)
+    loadAfter(endCursor, relay, setLoading)
   }
 }
 
@@ -111,7 +111,7 @@ const loadAfter = (cursor, relay, setLoading) => {
   )
 }
 interface PurchaseHistoryProps {
-  orders: PurchaseHistory_orders
+  me: PurchaseHistory_me
   relay: RelayRefetchProp
 }
 
@@ -119,14 +119,15 @@ const PurchaseHistory: React.FC<PurchaseHistoryProps> = (
   props: PurchaseHistoryProps
 ) => {
   const [loading, setLoading] = useState(false)
-  const { orders } = props
+  const {
+    me: { orders },
+  } = props
   console.log("historyProps", props)
   const pageInfo = orders.pageInfo
   const myOrders = orders.edges && orders.edges.map(x => x.node)
   console.log(JSON.stringify(myOrders))
   return !loading ? (
     <Box px={1}>
-      <Serif size="5">Purchases</Serif>
       {myOrders.length ? (
         myOrders.map(order => <OrderRow key={order.code} order={order} />)
       ) : (
@@ -145,81 +146,77 @@ const PurchaseHistory: React.FC<PurchaseHistoryProps> = (
 }
 
 export const PurchaseHistoryFragmentContainer = createRefetchContainer(
-  PurchaseHistory as React.ComponentType<PurchaseHistoryProps>,
+  PurchaseHistory,
   {
-    orders: graphql`
-      fragment PurchaseHistory_orders on CommerceOrderConnectionWithTotalCount {
-        edges {
-          node {
-            internalID
-            code
-            state
-            mode
-            buyerTotal
-            lineItems {
-              edges {
-                node {
-                  artwork {
-                    date
-                    image {
-                      resized(width: 55) {
-                        url
+    me: graphql`
+      fragment PurchaseHistory_me on Me
+        @argumentDefinitions(
+          first: { type: "Int", defaultValue: 3 }
+          after: { type: "String" }
+        ) {
+        orders(first: $first, after: $after) {
+          edges {
+            node {
+              internalID
+              code
+              state
+              mode
+              buyerTotal
+              lineItems {
+                edges {
+                  node {
+                    artwork {
+                      date
+                      image {
+                        resized(width: 55) {
+                          url
+                        }
                       }
+                      internalID
+                      title
+                      artist_names: artistNames
                     }
-                    internalID
-                    title
-                    artist_names: artistNames
                   }
                 }
               }
             }
           }
-        }
-        pageCursors {
-          around {
-            cursor
-            isCurrent
-            page
+          pageCursors {
+            around {
+              cursor
+              isCurrent
+              page
+            }
+            first {
+              cursor
+              isCurrent
+              page
+            }
+            last {
+              cursor
+              isCurrent
+              page
+            }
+            previous {
+              cursor
+              isCurrent
+              page
+            }
           }
-          first {
-            cursor
-            isCurrent
-            page
+          pageInfo {
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
           }
-          last {
-            cursor
-            isCurrent
-            page
-          }
-          previous {
-            cursor
-            isCurrent
-            page
-          }
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-          hasPreviousPage
-          startCursor
         }
       }
     `,
   },
   graphql`
-    query PurchaseHistoryQuery(
-      $first: Int!
-      $last: Int
-      $after: String
-      $before: String
-    ) {
-      orders: commerceMyOrders(
-        first: $first
-        last: $last
-        before: $before
-        after: $after
-      ) {
-        ...PurchaseApp_orders
+    query PurchaseHistoryQuery($first: Int!, $after: String) {
+      me {
+        ...PurchaseHistory_me @arguments(first: $first, after: $after)
       }
     }
   `
